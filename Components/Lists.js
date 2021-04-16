@@ -13,6 +13,8 @@ import * as firebase from "firebase";
 
 export default function App() {
   const [users, setUsers] = useState([]);
+  const [positive, setPositive] = useState(0);
+  const [volunteers, setVolunteers] = useState(0);
 
   useEffect(() => {
     firebase.default
@@ -20,16 +22,26 @@ export default function App() {
       .ref(`users`)
       .once("value", (success) => {
         let array = [];
+        let positive = 0;
+        let volunteers = 0;
         success.forEach((s) => {
           if (s.val().email.toLowerCase() !== "admin@gmail.com") {
             let obj = s.val();
             obj.id = s.key;
             array.push(obj);
 
-            console.log(s.val());
+            if (obj.report === "positive") {
+              positive = positive + 1;
+            }
+
+            if (obj.report !== "") {
+              volunteers = volunteers + 1;
+            }
           }
         });
         setUsers(array);
+        setPositive(positive);
+        setVolunteers(volunteers);
       });
   }, []);
 
@@ -61,6 +73,25 @@ export default function App() {
           />
           <Text style={{ fontSize: 40 }}>Results</Text>
         </View>
+        <View style={{ marginTop: 30,marginBottom:30, display: "flex", justifyContent: "center", width:'100%' }}>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>Statistics</Text>
+          <View>
+            <View>
+              <Text>
+                Volunteers:
+                <Text style={{ fontWeight: "bold" }}>{volunteers}</Text>
+              </Text>
+            </View>
+
+            <View>
+              <Text>
+                Positive:
+                <Text style={{ fontWeight: "bold" }}>{positive} </Text>
+              </Text>
+            </View>
+          </View>
+        </View>
+
         {users && users.length > 0
           ? users.map((val, key) => {
               return (
